@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <link rel="stylesheet" href="print-css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Taj Indian Cusine And Restaurant</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+
+    <script src="assets/js/jquery.min.js" type="text/javascript"></script>
+    <script>
+        function getData() {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+
+
+            db.each("SELECT * FROM restaurant_detail WHERE name ='Taj Indian Cusine And Restaurant' ", function (err, row) {
+                console.log(row);
+
+                $('#phone_number').text(row.phone);
+                $('#address').text(row.address);
+            })
+
+            db.each("SELECT * FROM order_transaction WHERE id = (SELECT MAX(id) FROM order_transaction)", function (err, row) {
+                console.log(row);
+                $('#get-id').text(row.id);
+                $('#tax').text(row.gst);
+                $('#total').text(row.grand_total);
+                getTable();
+            })
+            //window.print();
+
+            myprint();
+
+        }
+
+        async function myprint() {
+            var Printer = require('node-printer');
+            var fs = require('fs');
+
+            // Get available printers list 
+            var listPrinter = Printer.list();
+            console.log(listPrinter);
+            const ThermalPrinter = require("node-thermal-printer").printer;
+            const PrinterTypes = require("node-thermal-printer").types;
+            console.log(ThermalPrinter);
+            console.log(PrinterTypes);
+            let printer = new ThermalPrinter({
+                type: PrinterTypes.EPSON,                                  // Printer type: 'star' or 'epson'
+                interface: 'printer:No Printer Attached',                      // Printer interface
+                characterSet: 'PC437',                                 // Printer character set
+                removeSpecialCharacters: false,                           // Removes special characters - default: false
+                replaceSpecialCharacters: true,                           // Replaces special characters listed in config files - default: true
+                extraSpecialCharacters: { '£': 163 },                       // Adds additional special characters to those listed in the config files
+                options: {                                                 // Additional options
+                    timeout: 5000                                           // Connection timeout (ms) [applicable only for network printers] - default: 3000
+                }
+            });
+            let isConnected = await printer.isPrinterConnected();       // Check if printer is connected, return bool of status
+            console.log('IS CONNECTED', isConnected);
+            let execute = await printer.execute();                      // Executes all the commands. Returns success or throws error
+            let raw = await printer.raw(Buffer.from("Hello world"));    // Print instantly. Returns success or throws error
+            printer.print("Hello World");                               // Append text
+            printer.println("Hello World");
+        }
+        function getTable() {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+
+            var id = $('#get-id').text();
+            console.log("id = " + id);
+
+            db.each("SELECT * FROM order_entity WHERE order_id='" + id + "'", function (err, row) {
+                console.log(row);
+                var itotal = (row.item_price * row.item_qty);
+                $("#order-entity-body").append(`<tr class="service"><td class="tableitem"><p class="itemtext">${row.item_name}</p></td><td class="tableitem"><p class="itemtext">${row.item_qty}</p></td><td class="tableitem"><p class="itemtext">${itotal}</p></td></tr>`);
+            });
+        }
+        getData();
+    </script>
+
+</head>
+
+<body style="font-weight:7px;">
+    <div id="invoice-POS">
+
+        <center id="top">
+            <div class="info">
+                <h4>Taj Indian Cusine And Restaurant</h4>
+            </div>
+            <!--End Info-->
+        </center>
+        <!--End InvoiceTop-->
+
+        <div id="mid">
+            <div class="info">
+                <h6>Contact Info</h6>
+                <p>
+                    Address : <span id="address"></span> </br>
+                    Phone : <span id="phone_number"></span> </br>
+                </p>
+            </div>
+        </div>
+        <!--End Invoice Mid-->
+
+        <div id="legalcopy">
+            <p class="legal order-mid"><strong>Order Id = <span class="order-mid" id="get-id"></span> </strong> </p>
+
+        </div>
+
+        <div id="bot">
+
+            <div id="table">
+                <table>
+                    <tr class="tabletitle">
+                        <td class="item">
+                            <h4>Item</h4>
+                        </td>
+                        <td class="Hours">
+                            <h4>Qty</h4>
+                        </td>
+                        <td class="Rate">
+                            <h4>Sub Total</h4>
+                        </td>
+                    </tr>
+
+                    <!--<tr class="service">
+                        <td class="tableitem">
+                            <p class="itemtext">Communication</p>
+                        </td>
+                        <td class="tableitem">
+                            <p class="itemtext">5</p>
+                        </td>
+                        <td class="tableitem">
+                            <p class="itemtext">$375.00</p>
+                        </td>
+                    </tr>-->
+                    <tbody id="order-entity-body">
+
+
+                    </tbody>
+
+                    <tr class="tabletitle">
+                        <td></td>
+                        <td class="Rate">
+                            <h2>tax</h2>
+                        </td>
+                        <td class="payment">
+                            <h2 id="tax"></h2>
+                        </td>
+                    </tr>
+
+                    <tr class="tabletitle">
+                        <td></td>
+                        <td class="Rate">
+                            <h2>Total</h2>
+                        </td>
+                        <td class="payment">
+                            <h2 id="total"></h2>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <!--End Table-->
+
+            <div id="legalcopy">
+                <p class="legal order-mid"><strong>Thank you, Visit again!</strong> 
+                </p>
+            </div>
+
+        </div>
+        <!--End InvoiceBot-->
+    </div>
+    <!--End Invoice-->
+</body>
+
+<!--   Core JS Files   -->
+<script src="assets/js/jquery.min.js" type="text/javascript"></script>
+<script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+
+</html>

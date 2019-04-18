@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>HomePage</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div class="header">
+        <h2>Hariyali Restaurant</h2>
+    </div>
+    <div class="col-md-12 grid-box">
+        <div class="col-md-4 col-sm-4 col-xs-4 ">
+
+        </div>
+        <!-- This button is for new order button -->
+        <div class="col-md-4 col-sm-4 col-xs-4 grid-box">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"
+                onclick="window.location.href='addWindow.html'" id="order_btn"> New Order </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4 ">
+
+        </div>
+    </div>
+    <div class="col-md-12 ">
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <h3 class="label-text">Menu Option</h3>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4 grid-box">
+            <h3 class="label-text">Payment Option</h3>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <h3 class="label-text">Employee Option</h3>
+        </div>
+    </div>
+    <div class="col-md-12 grid-box">
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw" id="addMenuItem"> Add Menu Items
+            </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Add Payment Information </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw" onclick="window.location.href='addEmployee.html'" id="addEmployee"> Add Employee Information </button>
+        </div>
+    </div>
+    <div class="col-md-12 grid-box">
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw" id="modifyMenuItem"> Modify Menu Items </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Modify Payment Information </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Modify Employee Information </button>
+        </div>
+    </div>
+    <div class="col-md-12 grid-box">
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw" id="deleteMenuItem"> Delete Menu Items </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Delete Payment Information </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Delete Employee Information </button>
+        </div>
+    </div>
+    <div class="col-md-12 grid-box">
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Sale Report </button>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <!--    <button type="button" class="btn btn-primary btn-lg btn-block"> Modify Payment Information </button> -->
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-4">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"> Shut Down </button>
+        </div>
+    </div>
+
+    <script src="server.js">
+
+    </script>
+    <script src="newOrder.js"></script> 
+</body>
+
+
+</html>

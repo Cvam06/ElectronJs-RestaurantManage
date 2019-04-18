@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/custom.css">
+
+    <title>Taj Indian Cusine And Restaurant</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+
+
+    <!-- Bootstrap core CSS     -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Animation library for notifications   -->
+    <link href="assets/css/animate.min.css" rel="stylesheet" />
+
+    <!--  Paper Dashboard core CSS    -->
+    <link href="assets/css/paper-dashboard.css" rel="stylesheet" />
+
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="assets/css/demo.css" rel="stylesheet" />
+
+    <!--  Fonts and icons     -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
+    <link href="assets/css/themify-icons.css" rel="stylesheet">
+    <script src="assets/js/jquery.min.js" type="text/javascript"></script>
+    <script>
+        function order_list() {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+            let orderId = [];
+            let i = 0;
+            let orderIndex = 0;
+            /*Serial Number,  Order Id, Total, GST, GrandTotal, PaymentType, OrderDate*/
+            db.each("SELECT * FROM order_transaction", function (err, row) {
+                console.log(row);
+                orderId[i] = row.id;
+                orderIndex += 1;
+
+                $('#report-body').append(`<tr><td> ${orderIndex} </td><td class="td-hover" onClick="orderEntity(` + orderId[i] + `)" data-toggle="modal" data-target="#modifyModal"> ${row.id} </td><td class="td-hover" onClick="modifyTotalCash(` + orderId[i] + `)" data-toggle="modal" data-target="#modifyTotalModal"> ${row.total} </td><td>  ${row.gst} </td><td> ${row.grand_total} </td><td> ${row.payment_type} </td><td> ${row.order_date} </td></tr>`);
+            });
+            db.close();
+        }
+
+        function displayReport() {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+            let orderId = [];
+            let i = 0;
+            var orderIndex = 0;
+            $('#report-body').empty();
+            console.clear();
+            console.log($('#from_date').val());
+            console.log($('#to_date').val());
+            console.log($('#payment_option').val());
+            db.each("SELECT * FROM order_transaction WHERE strftime('%Y-%m-%d ', order_date) BETWEEN '" +
+             $('#from_date').val() + "' AND '" + $('#to_date').val() + "' AND payment_type='"+$('#payment_option').val()+"'",
+             function (err, row) {
+                orderId[i] = row.id;
+                orderIndex += 1;
+                console.log("Ha ave che");
+                $('#report-body').append(`<tr><td> ${orderIndex} </td><td class="td-hover" onClick="orderEntity(` + orderId[i] + `)" data-toggle="modal" data-target="#modifyModal"> ${row.id} </td><td class="td-hover" onClick="modifyTotalCash(` + orderId[i] + `)" data-toggle="modal" data-target="#modifyTotalModal"> ${row.total} </td><td>  ${row.gst} </td><td> ${row.grand_total} </td><td> ${row.payment_type} </td><td> ${row.order_date} </td></tr>`)
+            });
+        }
+
+        order_list();
+
+        function orderEntity(no) {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+
+            $('#order_entity').empty();
+            db.each("SELECT * FROM order_entity where order_id = " + no, function (err, row) {
+                var itotal = (row.item_price * row.item_qty);
+                $('#order_entity').append(`<tr><td> ${row.item_id} </td><td> ${row.item_name} </td><td>  ${row.item_price} </td><td> ${row.item_qty} </td><td> ${itotal} </td></tr>`);
+            });
+            db.close();
+            $('#order-id-entity').text(no);
+        }
+
+        function modifyTotalCash(no) {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+
+            db.each("SELECT * FROM order_transaction WHERE id = " + no, function (err, row) {
+                console.log(row.tax_type);
+                $('#total_now').text(row.total);
+                $('#tax_type').text(row.tax_type);
+                $('#order_id_modify').text(no);
+                $('#payment_type_modify').text(row.payment_type);
+                calculateNewTotal();
+            });
+
+        }
+
+        function calculateNewTotal() {
+            var new_total = $('#total_new').val();
+            var tax_type = $('#tax_type').text();
+            if (tax_type == "GST") {
+                console.clear();
+                console.log("GST");
+                var new_tax = (new_total * (7.5) / 100);
+                var new_grand_total = parseFloat(new_tax) + parseFloat(new_total);
+                $('#tax_new').text((new_total * (7.5) / 100));
+                $('#grand_total_new').text(new_grand_total);
+            }
+            else {
+                console.clear();
+                console.log("PST");
+                var new_tax = (new_total * (5) / 100);
+                var new_grand_total = parseFloat(new_tax) + parseFloat(new_total);
+                $('#tax_new').text((new_total * (5) / 100));
+                $('#grand_total_new').text(new_grand_total);
+            }
+        }
+
+        function updateValue() {
+            var sqlite3 = require('sqlite3').verbose();
+            var db = new sqlite3.Database('./database.db');
+            var pay_type = $('#payment_type_modify').text();
+            console.log("pay_type = " + pay_type);
+            console.log("order_id = " + $('#order_id_modify').text());
+
+            if (pay_type == "Cash") {
+                db.each("UPDATE order_transaction SET total='" + $('#total_new').val() + "', gst='" + $('#tax_new').text() + "', grand_total='" + $('#grand_total_new').text() + "' WHERE id='" + $('#order_id_modify').text() + "'", function (err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Done Update");
+                });
+                alert("Update Done.");
+
+            }
+            else {
+                alert("Payment Type is not Cash. You can Only change in Cash Payment Type");
+                console.log("Payment Type is not Cash. You can Only change in Cash Payment Type");
+            }
+
+        }
+
+
+    </script>
+
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!--<div class="sidebar" data-background-color="white" data-active-color="danger" >
+
+            <div class="sidebar-wrapper">
+                <div class="logo">
+                    <span class="simple-text">
+                        Taj Indian Cusine And Restaurant
+                    </span>
+                </div>
+
+                <ul class="nav">
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="ti-shopping-cart"></i>
+                            <p>New Order</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="itemOption.html">
+                            <i class="ti-wand"></i>
+                            <p>Item Option</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="employeeOption.html">
+                            <i class="ti-user"></i>
+                            <p>Employee Option</p>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="salesReport.html">
+                            <i class="ti-pencil-alt"></i>
+                            <p>Sales Report</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html">
+                            <i class="ti-shift-left-alt"></i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>-->
+
+
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                        <div class="collapse navbar-collapse">
+                    <div class="navbar-header">
+                        <span class="navbar-brand">Sales Report</span>
+                    </div>
+                    <button class="btn2" onclick="window.location.href='home.html'">
+                            <i class="ti-home"></i>
+                        </button>
+                    
+                        <p class="nav navbar-nav navbar-right">Date: <span id="date"></span></p>
+
+                        <script>
+                            var dt = new Date();
+                            document.getElementById("date").innerHTML = dt.toLocaleDateString();
+                        </script>
+                        <br />
+                        <p class="nav navbar-nav navbar-right">Time: <span id="time"></span></p>
+
+                        <script>
+                            function liveTime() {
+                                var dt = new Date();
+                                document.getElementById("time").innerHTML = dt.toLocaleTimeString();
+                            }
+                            setInterval(liveTime, 1000);
+                        </script>
+
+                    </div>
+                </div>
+            </nav>
+
+            <div class="report-detail shadow">
+                <div class="col-md-12">
+                    <span class="form-label-text col-md-2">Date From : </span>
+                    <input type="date" class="searchinput-order col-md-4" id="from_date">
+                </div>
+                <div class="col-md-12">
+                    <span class="form-label-text col-md-2">Date To : </span>
+                    <input type="date" class="searchinput-order col-md-4" id="to_date">
+                </div>
+                <div class="col-md-12">
+                    <span class="form-label-text col-md-2"> Payment Option </span>
+                    <select class="searchinput-order col-md-4" id="payment_option">
+                        <option value="Visa Card" id="visa_card">Visa Card</option>
+                        <option value="Master Card" id="master_card">Master Card</option>
+                        <option value="American Express" id="american_card">American Express</option>
+                        <option value="Credit Card" id="credit_card">Credit Card</option>
+                        <option value="Cash" id="cash">Cash</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <input type="button" class="btn btn-primary btn-lg btn-block btn-hw" value="Display"
+                            id="display" onclick="displayReport()">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="button" class="btn btn-primary btn-lg btn-block btn-hw" value="Print" id="print">
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-detail shadow">
+                <table>
+                    <div class="content table-responsive table-full-width">
+                        <table class="table table-hover">
+                            <thead>
+                                <th>Serial Number</th>
+                                <th>Order ID</th>
+                                <th>Total</th>
+                                <th>GST</th>
+                                <th>Grand Total</th>
+                                <th>Payment Type</th>
+                                <th>Order Date</th>
+                            </thead>
+                            <tbody id="report-body">
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </table>
+
+            </div>
+
+
+
+        </div>
+    </div>
+    <div class="modal fade" id="modifyModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Order Entity</h4>
+                </div>
+                <div>
+                    <table>
+                        <div class="content table-responsive table-full-width">
+                            <table class="table table-hover">
+                                <thead>
+                                    <th>Item Id</th>
+                                    <th>Item Name</th>
+                                    <th>Item Price</th>
+                                    <th>Item Quantity</th>
+                                    <th>Item Total</th>
+                                </thead>
+                                <tbody id="order_entity">
+                                    <!--get values from function orderEntity()-->
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modifyTotalModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modify Total</h4>
+                </div>
+                <div>
+                    <div class="col-md-12">
+                        <span class="form-label-text col-md-3"> Total Now </span>
+                        <span class="searchinput-order col-md-2" id="total_now"> --- </span>
+                        <span class="form-label-text col-md-3"> Payment Type </span>
+                        <span class="searchinput-order col-md-2" id="payment_type_modify"> --- </span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <span class="form-label-text col-md-3"> Order ID </span>
+                        <span class="searchinput-order col-md-6" id="order_id_modify"> --- </span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <span class="form-label-text col-md-3" oninput="calculateNewTotal()"> Total New </span>
+                        <input type="text" class="searchinput-order col-md-6" id="total_new"
+                            oninput="calculateNewTotal()">
+                    </div>
+                    <div class="col-md-12">
+                        <span class="form-label-text col-md-3"> TAX Type</span>
+                        <span class="searchinput-order col-md-2" id="tax_type"> --- </span>
+                        <span class="form-label-text col-md-3"> New TAX </span>
+                        <span class="searchinput-order col-md-2" id="tax_new"> --- </span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <span class="form-label-text col-md-3"> New Grand Total </span>
+                        <span class="searchinput-order col-md-6" id="grand_total_new"> --- </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class='col-md-12'>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"
+                                onClick="updateValue()" data-dismiss="modal">Update</button>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary btn-lg btn-block btn-hw"
+                                data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+<!--   Core JS Files   -->
+<script src="assets/js/jquery.min.js" type="text/javascript"></script>
+<script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+
+<!--  Checkbox, Radio & Switch Plugins -->
+<script src="assets/js/bootstrap-checkbox-radio.js"></script>
+
+<!--  Charts Plugin -->
+<script src="assets/js/chartist.min.js"></script>
+
+<!--  Notifications Plugin    -->
+<script src="assets/js/bootstrap-notify.js"></script>
+
+<!-- Paper Dashboard Core javascript and methods for Demo purpose -->
+<script src="assets/js/paper-dashboard.js"></script>
+
+<!-- Paper Dashboard DEMO methods, don't include it in your project! -->
+<script src="assets/js/demo.js"></script>
+
+</html>

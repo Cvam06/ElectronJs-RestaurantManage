@@ -1,0 +1,32 @@
+{
+  "name": "billingproject",
+  "version": "1.0.0",
+  "description": "restaurant managemeny",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "electron-rebuild -f -w sqlite3 ",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . electron-tutorial-app --overwrite --asar=true --platform=win32 --arch=ia32 --icon=restaurant-icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Restaurant Management\"",
+    "package-linux": "electron-packager . electron-tutorial-app --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
+  },
+  "author": "digiflux",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^4.0.4",
+    "electron-printer": "0.0.5",
+    "knex": "^0.16.3",
+    "node-gyp": "^3.8.0",
+    "node-printer": "^1.0.4",
+    "node-thermal-printer": "^4.0.2",
+    "sqlite3": "^4.0.6",
+    "usb": "^1.5.0",
+    "uuid": "^3.3.2",
+    "zuzel-printer": "^1.0.4"
+  },
+  "devDependencies": {
+    "electron-packager": "^13.1.1",
+    "electron-rebuild": "^1.8.4"
+  }
+}
