@@ -14,7 +14,7 @@
   "author": "digiflux",
   "license": "MIT",
   "dependencies": {
-    "electron": "^4.0.4",
+    "electron": "^11.5.0",
     "electron-printer": "0.0.5",
     "knex": "^0.16.3",
     "node-gyp": "^3.8.0",
