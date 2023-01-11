@@ -16,7 +16,7 @@
   "dependencies": {
     "electron": "^4.0.4",
     "electron-printer": "0.0.5",
-    "knex": "^0.16.3",
+    "knex": "^2.4.0",
     "node-gyp": "^3.8.0",
     "node-printer": "^1.0.4",
     "node-thermal-printer": "^4.0.2",
